@@ -20,9 +20,9 @@ class Bar {
  public:
     // default constructor:
     Bar() {
-        string name = "";
-        string category = "";
-        int value = 0;
+         name = "";
+         category = "";
+        value = 0;
         // TO DO:  Write this constructor.
         
     }

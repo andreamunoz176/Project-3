@@ -60,7 +60,11 @@ class BarChartAnimate {
     // ourvector.h for how to double the capacity).
     // See application.cpp and handout for pre and post conditions.
     void addFrame(ifstream &file) {
-    	
+    	//call other functions
+        /*
+         color map
+         loop through  file store value
+         */
         // TO DO:  Write this constructor.
         
     }
@@ -85,7 +89,7 @@ class BarChartAnimate {
     //
     int getSize(){
         
-        return 0;  // TO DO:  update this, it is only here so code compiles.
+        return size;  // TO DO:  update this, it is only here so code compiles.
         
     }
 
@@ -96,11 +100,17 @@ class BarChartAnimate {
     // If i is out of bounds, throw an out_of_range error message:
     // "BarChartAnimate: i out of bounds"
     //
+    BarChart& at(int i){
+        if(i<0 || i>= size){
+            throw out_of_range("BarChart: i out of bounds");
+        }
+        return barcharts[i];
+    }
     BarChart& operator[](int i){
-        BarChart bc;
-        
+        //BarChart bc;
+        return at(i);
         // TO DO:  Write this function.
         
-        return bc; // TO DO:  update this, it is only here so code compiles.
+       //return bc; // TO DO:  update this, it is only here so code compiles.
     }
 };

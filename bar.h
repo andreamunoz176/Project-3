@@ -1,5 +1,5 @@
 // bar.h
-// TO DO:  add header comment here.  Also add function header comments below.
+// This function this file creates the most basic properties of the individual bars such as the name, value and category. It also includes the comparison operator definitons
 
 #include <iostream>
 #include <string>
@@ -19,19 +19,17 @@ class Bar {
     string name;
  public:
     // default constructor:
+    //Setting the values to empty string or zero
     Bar() {
          name = "";
          category = "";
         value = 0;
-        // TO DO:  Write this constructor.
-        
     }
 
     //
     // a second constructor:
     //
     // Parameter passed in constructor Bar object.
-    //
     Bar(string name, int value, string category) {
         this->name = name;
         this->value = value;
@@ -41,82 +39,41 @@ class Bar {
 
     // destructor:
     virtual ~Bar() {
-        
-        // TO DO:  Write this destructor or leave empty if not needed.
-        
     }
 
     // getName:
 	string getName() {
-        
-        // TO DO:  Write this function.
-        
-        return name;  // TO DO:  update this, it is only here so code compiles.
+        return name;
 	}
 
     // getValue:
 	int getValue() {
-        
-		// TO DO:  Write this function.
-        
-        return value;    // TO DO:  update this, it is only here so code compiles.
+        return value;
 	}
 
     // getCategory:
 	string getCategory() {
-        
-        // TO DO:  Write this function.
-        
-        return category; // TO DO:  update this, it is only here so code compiles.
+        return category;
 	}
 
 	// operators
-    // TO DO:  Write these operators.  This allows you to compare two Bar
+   // This allows you to compare two Bar
     // objects.  Comparison should be based on the Bar's value.  For example:
+    //GreaterThan Function
 	bool operator<(const Bar &other) const {
-        int bar1;
-        int bar2;
-        if(bar1<bar2){
-            return true;
-        }
-        else {
-            return false;
-        }
-          // TO DO:  update this, it is only here so code compiles.
+        return(value < other.value);
 	}
-
+//GreaterThan OR Equal To Function
 	bool operator<=(const Bar &other) const {
-        int bar1;
-        int bar2;
-        if(bar1 < bar2 || bar1 == bar2){
-        return true; 
-        }
-        else{
-            return false;
-        } // TO DO:  update this, it is only here so code compiles.
+        return(value <= other.value);
 	}
-
+//LessThan Function
 	bool operator>(const Bar &other) const {
-        int bar1;
-        int bar2;
-        if(bar1>bar2){
-            return true;
-        }
-        else {
-            return false;
-        }
-         // TO DO:  update this, it is only here so code compiles.
+        return(value > other.value);
 	}
-
+//LessThanOrEqualTo Function
 	bool operator>=(const Bar &other) const {
-        int bar1;
-        int bar2;
-        if(bar1 > bar2 || bar1 == bar2){
-        return true; 
-        }
-        else{
-            return false;
-        } // TO DO:  update this, it is only here so code compiles.
+        return(value >= other.value);
 	}
 };
 

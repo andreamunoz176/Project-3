@@ -1,5 +1,5 @@
 // barchart.h
-// TO DO:  add header comment here.  Also add function header comments below.
+//This file contains the functions that will create each individual bar that is eventually used in barchartanimation.h
 
 #include <iostream>
 #include <algorithm>
@@ -64,17 +64,17 @@ const vector<string> COLORS = {CYAN, GREEN, GOLD, RED, PURPLE, BLUE, WHITE};
         BarChart() {
             capacity = 0;
             size = 0;
-            bars = new Bar[0];
-            // TO DO:  Write this constructor.
-
+            bars = NULL;
+            frame = "";
         }
 
         // parameterized constructor:
         // Parameter passed in determines memory allocated for bars.
         BarChart(int n) {
-            bars = new Bar[n];
+            bars = new Bar[capacity];
             capacity = n;
             size = 0;
+            frame = "";
             // TO DO:  Write this constructor.
 
         }
@@ -90,8 +90,11 @@ const vector<string> COLORS = {CYAN, GREEN, GOLD, RED, PURPLE, BLUE, WHITE};
             this->bars = new Bar[other.capacity];
             this->size = other.size;
             this->capacity = other.capacity;
-            // TO DO:  Write this constructor.
+            this->frame = other.frame;
 
+            for(int i = 0;i<other.size;++i){
+                this->bars[i] = other.bars[i];
+            }
         }
         //
         // copy operator=
@@ -99,9 +102,9 @@ const vector<string> COLORS = {CYAN, GREEN, GOLD, RED, PURPLE, BLUE, WHITE};
         // Called when you assign one BarChart into another, i.e. this = other;
         //
         BarChart& operator=( const BarChart& other) {
-            BarChart *bc;
-            if(bc == &other){
-                return *bc;
+
+            if(this == &other){
+                return *this;
             }
             delete[]bars;
             this->bars = new Bar[other.capacity];
@@ -112,18 +115,20 @@ const vector<string> COLORS = {CYAN, GREEN, GOLD, RED, PURPLE, BLUE, WHITE};
                 this->bars[i] = other.bars[i];
             }
 
-            return *bc;   // TO DO:  update this, it is only here so code compiles.
+            return *this;
         }
 
         // clear
         // frees memory and resets all private member variables to default values.
         void clear() {
-            delete[] bars;
-            bars = new Bar[0];
+
+            if(bars != nullptr){
+                delete[] bars;
+            }
             size = 0;
             capacity = 0;
-            // TO DO:  Write this operator.
-
+            frame = "";
+            bars = NULL;
         }
 
         //
@@ -135,25 +140,18 @@ const vector<string> COLORS = {CYAN, GREEN, GOLD, RED, PURPLE, BLUE, WHITE};
         virtual ~BarChart() {
             if( bars != nullptr){
                 delete[]bars;
-
             }
-            // TO DO:  Write this destructor.
-
+            bars = NULL;
         }
 
         // setFrame
         void setFrame(string frame) {
             frame = frame;
-            // TO DO:  Write this destructor.
-
         }
 
         // getFrame()
         // Returns the frame of the BarChart oboject.
         string getFrame() {
-
-            // TO DO:  Write this function.
-
             return frame; // TO DO:  update this, it is only here so code compiles.
         }
 
@@ -170,25 +168,13 @@ const vector<string> COLORS = {CYAN, GREEN, GOLD, RED, PURPLE, BLUE, WHITE};
             }
 
 
-            return false; // TO DO:  update this, it is only here so code compiles.
+            return false;
         }
 
         // getSize()
         // Returns the size (number of bars) of the BarChart object.
         int getSize() {
-
-            // TO DO:  Write this function.
-
-            return size;  // TO DO:  update this, it is only here so code compiles.
-        }
-        int getCapacity(){
-            return capacity;
-        }
-        Bar& at(int i){
-            if(i<0 || i>= size){
-                throw out_of_range("BarChart: i out of bounds");
-            }
-            return bars[i];
+             return size;  // TO DO:  update this, it is only here so code compiles.
         }
     // operator[]
         // Returns Bar element in BarChart.
@@ -196,14 +182,11 @@ const vector<string> COLORS = {CYAN, GREEN, GOLD, RED, PURPLE, BLUE, WHITE};
         // If i is out of bounds, throw an out_of_range error message:
         // "BarChart: i out of bounds"
         Bar& operator[](int i) {
-            return at(i);
-           // Bar b;
+        if(i<0 || i>= size){
+            throw out_of_range("BarChart: i out of bounds");
+        }
+        return bars[i];
 
-            //index accessing operator
-            // class act like a vector
-            // TO DO:  Write this function.
-
-             // TO DO:  update this, it is only here so code compiles.
         }
 
         // dump
@@ -216,17 +199,14 @@ const vector<string> COLORS = {CYAN, GREEN, GOLD, RED, PURPLE, BLUE, WHITE};
         // bname 4 category2
         // cname 3 category3" <-newline here
         void dump(ostream &output) {
-            sort(bars,bars+size,greater<Bar>());
-            output<<"Frame: "<<frame<<endl;
+            BarChart temp(*this);
+            sort(temp.bars,temp.bars+temp.size,greater<Bar>());
+            output<<"Frame: "<<this->frame<<endl;
             for(int i = 0; i < size; i++){
-                output<<bars[i].getName()<<" ";
-                output<<bars[i].getValue()<<" ";
-                output<<bars[i].getCategory()<<endl;
+                output<<temp.bars[i].getName()<<" ";
+                output<<temp.bars[i].getValue()<<" ";
+                output<<temp.bars[i].getCategory()<<endl;
             }
-//              cout<<"Frame:"<<year<<endl;
-//              cout<<place<<value<<category;
-            // TO DO:  Write this function.
-
         }
 
         // graph
@@ -235,22 +215,31 @@ const vector<string> COLORS = {CYAN, GREEN, GOLD, RED, PURPLE, BLUE, WHITE};
         // colorMap maps category -> color
         // top is number of bars you'd like plotted on each frame (top 10? top 12?)
         void graph(ostream &output, map<string, string> &colorMap, int top) {
-            int lenMax = 60;  // this is number of BOXs that should be printed
-                              // for the top bar (max value)
-
-            // TO DO: read this example and this erase it.
-            // e.g. Here I am plotting 60 red BOXs to output
-            string color = "\033[1;36m";  // you should get this from colorMap
-            string barstr = "";
-            for (int i = 0; i < lenMax; i++) {
-                barstr += BOX;
+            //sort
+            sort(bars, bars + size, greater<Bar>());
+            //setting max for top
+            int lenMax = 60;
+            //setting color to empty
+            string color = "";
+            int topVal = bars[0].getValue();
+            for(int i = 0; i < top; i++) {
+                string barstr = "";
+                double lowVal = bars[i].getValue();
+                for (int j = 0;j < static_cast<int>((lowVal / topVal) * lenMax); j++) {
+                    barstr += BOX;
+                }
+                if (colorMap.count(bars[i].getCategory()) != 0) {
+                    color = colorMap[bars[i].getCategory()];
+                }
+                else {
+                    color = WHITE;
+                }
+                output << color << barstr << " ";
+                output << bars[i].getName() << " ";
+                output << bars[i].getValue() << endl;
+                barstr = "";
             }
-            output << color << barstr << endl;
-            // loop through bars
-            //
-            // TO DO:  Write this function.
-
-        }
+      }
 
     };
 

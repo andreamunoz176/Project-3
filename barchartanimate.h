@@ -1,5 +1,5 @@
 // barchartanimate.h
-// TO DO:  add header comment here.  Also add function header comments below.
+// This file contains the functions that will create an animation of the moving data of the txt file using bar.h and barchart.h files
 
 #include <iostream>
 #include <fstream>
@@ -29,17 +29,48 @@ class BarChartAnimate {
     BarChart* barcharts;  // pointer to a C-style array
     int size;
     int capacity;
+    string title;
+    string xlabel;
+    string source;
     map<string, string> colorMap;
-
+    int unsigned colorIndex = 0;
+    void setColor(string category) {
+        if(colorMap.find(category) == colorMap.end()) {
+            int variable = COLORS.size();
+            if(colorIndex == variable) {
+                colorIndex = 0;
+            }
+            colorMap[category] =  COLORS[colorIndex];
+            colorIndex++;
+        }
+    }
+    // private helper function help parse the lines in the .txt files to get
+    // the proper variables needed to add bars to the frame
+    void parseLine(string line, BarChart& b) {
+        stringstream word(line);
+        string frame, name, blank, tempvalue, category;
+        getline(word, frame, ',');
+        getline(word, name, ','); //name
+        getline(word, blank, ','); //not needed
+        getline(word, tempvalue, ','); //value
+        int value = stoi(tempvalue);
+        getline(word, category, '\n'); // category
+        b.setFrame(frame);
+        b.addBar(name, value, category);
+        setColor(category);
+    }
  public:
 
     // a parameterized constructor:
     // Like the ourvector, the barcharts C-array should be constructed here
     // with a capacity of 4.
     BarChartAnimate(string title, string xlabel, string source) {
-        
-        // TO DO:  Write this constructor.
-        
+        capacity = 4;
+        size = 0;
+        barcharts = new BarChart[4];
+        this->title = title;
+        this->xlabel = xlabel;
+        this->source = source;
     }
 
     //
@@ -49,9 +80,9 @@ class BarChartAnimate {
     // by BarChartAnimate.
     //
     virtual ~BarChartAnimate() {
-        
-        // TO DO:  Write this destructor.
-        
+        if(barcharts != nullptr){
+            delete[] barcharts;
+        }
     }
 
     // addFrame:
@@ -60,13 +91,32 @@ class BarChartAnimate {
     // ourvector.h for how to double the capacity).
     // See application.cpp and handout for pre and post conditions.
     void addFrame(ifstream &file) {
-    	//call other functions
-        /*
-         color map
-         loop through  file store value
-         */
-        // TO DO:  Write this constructor.
-        
+        string throwaway, line;
+        getline(file, throwaway);
+        if (!file.fail()) {
+            string sizeTemp;
+            getline(file, sizeTemp);
+            int size = stoi(sizeTemp);
+            BarChart b(size);
+            if (this->size == capacity)
+            {
+                int Capa = capacity * 2;
+                BarChart* temp = new BarChart[Capa];
+                for (int i = 0; i < this->size; ++i)
+                {
+                    temp[i] = barcharts[i];
+                }
+                delete[] barcharts;
+                barcharts = temp;
+                capacity = Capa;
+            }
+            for(int i = 0; i < size; i++) {
+                getline(file, line);
+                parseLine(line,b);
+            }
+            this->barcharts[this->size] = b;
+            this->size++;
+        }
     }
 
     // animate:
@@ -78,9 +128,20 @@ class BarChartAnimate {
     // in between each frame.
 	void animate(ostream &output, int top, int endIter) {
 		unsigned int microsecond = 50000;
-        
-        // TO DO:  Write this function.
-			
+        int num = endIter;
+        if(endIter == -1){
+            num = size;
+        }
+
+        for (int i = 0; i < endIter; ++i) {
+            usleep(3*microsecond);
+            output << CLEARCONSOLE;
+            output << WHITE << title << endl;
+            output << WHITE << source << endl;
+            barcharts[i].graph(output, colorMap, top);
+            output << WHITE << xlabel << endl;
+            output << WHITE <<"Frame: " << barcharts[i].getFrame() << endl;
+        }
 	}
 
     //
@@ -89,7 +150,7 @@ class BarChartAnimate {
     //
     int getSize(){
         
-        return size;  // TO DO:  update this, it is only here so code compiles.
+        return size;
         
     }
 
@@ -100,17 +161,11 @@ class BarChartAnimate {
     // If i is out of bounds, throw an out_of_range error message:
     // "BarChartAnimate: i out of bounds"
     //
-    BarChart& at(int i){
-        if(i<0 || i>= size){
-            throw out_of_range("BarChart: i out of bounds");
+
+    BarChart& operator[](int i){
+        if(i<0 ||i>= size){
+            throw out_of_range("barchartanimate: i out of bounds");
         }
         return barcharts[i];
-    }
-    BarChart& operator[](int i){
-        //BarChart bc;
-        return at(i);
-        // TO DO:  Write this function.
-        
-       //return bc; // TO DO:  update this, it is only here so code compiles.
     }
 };
